@@ -21,7 +21,7 @@ end ecc_dsa;
 --------------------------------------------------------------------------------
 architecture rtl of ecc_dsa is
     -- CONSTANTS ---------------------------------------------------------------
-    constant L : integer := 64;
+    constant L : integer := 256;
     constant P : std_logic_vector(L-1 downto 0) := X"ffffffff00000001000000000000000000000000ffffffffffffffffffffffff";
     constant N : std_logic_vector(L-1 downto 0) := X"ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551";
     -- SIGNALS -----------------------------------------------------------------
@@ -40,7 +40,68 @@ begin
     ----------------------------------------------------------------------------
     -- Generate Key
 
-    -- Generate Signature and Authenticate
+        -- Select random 1 <= d <= (n-1)
+        -- Compute Q = dG
+        -- Output public key Q and private key d
+
+    keygen_ent : entity work.ecc_dsa_keygen(rtl)
+        port map (
+            clkIn   =>,
+            rstIn   =>,
+            enIn    =>,
+            qIn     =>,
+            FR_In   =>,
+            aIn     =>,
+            bIn     =>,
+            seedIn  =>,
+            G_In    =>,
+            nIn     =>,
+            hIn     =>,
+            statOut =>, -- 1 = success, 0 = error
+            dOut    =>,
+            qOut    =>);
+
+    -- Generate Signature
+
+        -- Select random 1 <= k <= (n-1)
+        -- Compute P = (x,y) = kG
+        -- Compute r = x mod n
+            -- If r = 0, select new k
+        -- Compute r = k^-1 mod n
+        -- Compute e = SHA(m)
+        -- Compute s = k^-1(e + dr) mod n
+            -- If s = 0, select new k
+        -- Signature is (r,s)
+
+    siggen_ent : entity work.ecc_dsa_keygen(rtl)
+        port map (
+            clkIn  =>,
+            rstIn  =>,
+            enIn   =>,
+            kIn    =>,
+            mSHAIn =>,
+            sigOut =>);
+
+    -- Authenticate
+
+        -- Verify 1 <= r,s <= (n-1)
+        -- Compute e = SHA(m)
+        -- Compute w = s^-1 mod n
+        -- Compute u1 = ew
+        -- Compute u2 = rw
+        -- Compute X = (x1,x2) = u1*G+u2*Q
+        -- If X = 0, reject
+        -- Else compute v = x1 mod n
+        -- Accept if v = r
+
+    auth_ent : entity work.ecca_dsa_auth(rtl)
+        port map (
+            clkIn   => ,
+            rstIn   => ,
+            enIn    => ,
+            sigIn   => ,
+            mSHAIn  => ,
+            authOut => );
 
 end rtl;
 
