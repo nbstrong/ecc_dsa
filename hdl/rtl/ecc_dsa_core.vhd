@@ -11,6 +11,14 @@ use IEEE.std_logic_1164.all;
 -- b    = 5ac635d8 aa3a93e7 b3ebbd55 769886bc 651d06b0 cc53b0f6 3bce3c3e 27d2604b
 -- Gx   = 6b17d1f2 e12c4247 f8bce6e5 63a440f2 77037d81 2deb33a0 f4a13945 d898c296
 -- Gy   = 4fe342e2 fe1a7f9b 8ee7eb4a 7c0f9e16 2bce3357 6b315ece cbb64068 37bf51f5
+-- q    = Field Size -
+-- FR   = indication of basis used -
+-- a    = field element in curve definition -
+-- b    = field element in curve definition -
+-- seed = domain parameter seed -
+-- G    = (Xg,Yg) base point of prime order on curve -
+-- n    = order of G
+-- h    = cofactor
 --------------------------------------------------------------------------------
 entity ecc_dsa is
     port (
@@ -22,8 +30,9 @@ end ecc_dsa;
 architecture rtl of ecc_dsa is
     -- CONSTANTS ---------------------------------------------------------------
     constant L : integer := 256;
-    constant P : std_logic_vector(L-1 downto 0) := X"ffffffff00000001000000000000000000000000ffffffffffffffffffffffff";
-    constant N : std_logic_vector(L-1 downto 0) := X"ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551";
+    constant p : std_logic_vector(L-1 downto 0) := X"ffffffff00000001000000000000000000000000ffffffffffffffffffffffff";
+    constant n : std_logic_vector(L-1 downto 0) := X"ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551";
+    constant FR : std_logic_vector() := X"";
     -- SIGNALS -----------------------------------------------------------------
     -- ALIASES -----------------------------------------------------------------
     -- ATTRIBUTES --------------------------------------------------------------
