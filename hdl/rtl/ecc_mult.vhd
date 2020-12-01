@@ -17,48 +17,49 @@ entity ecc_mult is
         xIn     : in    std_logic_vector(m-1 downto 0);
         yIn     : in    std_logic_vector(m-1 downto 0);
         kIn     : in    std_logic_vector(m-1 downto 0);
-        doneOut :   out std_logic_vector(m-1 downto 0);
+        doneOut :   out std_logic;
         xOut    :   out std_logic_vector(m-1 downto 0);
         yOut    :   out std_logic_vector(m-1 downto 0));
 end entity ecc_mult;
 --------------------------------------------------------------------------------
 architecture rtl of ecc_mult is
     signal   en : std_logic;
-    variable k  : unsigned(m-1 downto 0);
-    variable i  : integer;
-    variable R  : unsigned(m*2-1 downto 0);
-    variable S  : unsigned(m*2-1 downto 0);
 begin
     process (clkIn)
+        variable k  : unsigned(m-1 downto 0);
+        variable i  : integer;
+        variable R  : unsigned(m*2-1 downto 0);
+        variable S  : unsigned(m*2-1 downto 0);
     begin
         if rising_edge(clkIn) then
             if (rstIn /= '0') then
-                doneOut <= 0;
-                en <= 0;
+                doneOut <= '0';
+                en <= '0';
                 i := 0;
             elsif (en = '1') then
                 if (i = (m)) then
-                    en <= 0;
-                    doneOut <= 1;
+                    en <= '0';
+                    doneOut <= '1';
                 else
-                    if (k(i) = 1) then
+                    if (k(i) = '1') then
                         if (R = X"0") then
                             R := S;
                         else
-                            R := R + S;
+                            R := ECC_ADD(R, S); -- Add if P /= Q
                         end if;
                     end if;
-                    S := 2 * S;
+                    S := ECC_SQUARE(S); -- Double if P = Q
                     i := i + 1;
+                end if;
             elsif (enIn = '1') then
                 en <= '1';
-                k := kIn;
+                k := unsigned(kIn);
                 i := 0;
                 R := (others => '0');
                 S := unsigned(xIn) & unsigned(yIn);
             end if;
         end if;
+        xOut <= std_logic_vector(R(R'left downto m+1));
+        yOut <= std_logic_vector(R(m-1 downto 0));
     end process;
-    xOut <= std_logic_vector(R(R'left downto m+1));
-    yOut <= std_logic_vector(R(m-1 downto 0));
 end architecture rtl;
