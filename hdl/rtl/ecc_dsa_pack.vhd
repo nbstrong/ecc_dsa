@@ -143,16 +143,18 @@ function point_mul(
     B : unsigned(m-1 downto 0))
     return unsigned is
     variable C : unsigned(m-1 downto 0);
-    constant ONE : unsigned(m-1 downto 0) := (0 => '1', others => '0');
 begin
-    if A = ONE then
+    if A(0) = '1' then
         C := B;
     else
         C := (others => '0');
     end if;
-    --for i in 1 to A'right loop
-
-    --end loop;
+    for i in 1 to A'left loop
+        B := B mod f;
+        if A(i) = '1'
+            C := C xor B;
+        end if;
+    end loop;
     return C;
 end point_mul;
 
